@@ -4,6 +4,10 @@ import (
 	"os"
 	"fmt"
 	"log"
+	"bufio"
+	"strconv"
+	"strings"
+	"time"
 )
 
 type Votes struct {
@@ -51,10 +55,47 @@ func parseVotes(file *os.File) {
 			continue
 		}
 
-		//TODO first try and retrieve the voter, if theyre not there, we'll insert them with their vote
+		//first try and retrieve the voter, if theyre not there, we'll insert them with their vote
 		//if they are there we will check their votes and if they have < 3 votes, we will add the vote, else skip
+		insertVote(row[0], row[1])
 	}
-	
 	elapsed := time.Since(start)
 	fmt.Println("Processing took ", elapsed)
+
+	tallyVotes()
+}
+
+//Function to add to a voters slice of votes if the can validly (have voted less than 3 times)
+//else the vote will not be counted
+func (v *Votes) addToVotes(vote uint8) *Votes {
+	if len(v.votes) < 3 {
+		candidateTotals[vote] = candidateTotals[vote] + 1
+		totalVotes++
+
+		v.votes = append(v.votes, vote)
+		return v
+	} else {
+		return v
+	}
+}
+
+func insertVote(voter string, vote string) {
+	votes, _ := voters[voter] 
+	voteForCandidate, err := strconv.ParseInt(vote, 0, 8)
+
+	if err != nil {
+		return
+	}
+
+	//If we have record of the voter, attempt add, otherwise just add
+	voters[voter] = *votes.addToVotes(uint8(voteForCandidate))
+}
+
+func tallyVotes() {
+	fmt.Println("candidate\ttotal")
+
+	for key,val := range candidateTotals {
+		perc := float64(val) / float64(totalVotes)
+		fmt.Println(fmt.Sprintf("candidate %d %c %d ( %f )", key, '\t', val, perc))
+	}
 }
