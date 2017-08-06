@@ -1,5 +1,14 @@
 package main
 
+// To start, thinking about data structures to hold data in the way described, it made the most sense to use a map, as it is a fast add 
+// and fast look up which is most crutial for this system
+
+// It was obvious that file IO was going to be the main time consuming part of each run. Part of the assumption then is how the votes will come to the system.
+// Are they all collated? Are the coming in real time? - If they are all collated already into a file, which is the assumption I have gone with, then the IO
+// of the file is the biggest issue. The data could be held in memory for subsequent runs, focusing on the diff between the new and old data.
+// Part of the idea of going with go was knowing how well the language can parallelise tasks. The idea being to branch the logic off straight after reading 
+// from file so that the throttle is almost solely on the IO scan.
+
 import (
 	"os"
 	"fmt"
