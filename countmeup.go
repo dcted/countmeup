@@ -31,4 +31,30 @@ func main() {
 		return
 	}
 	defer file.Close()
+
+	parseVotes(file)
+}
+
+//Working assumption that the file is local and this program will be run with the entire data set included each time
+//this isnt likely in practice but as a start we will go with this idea
+func parseVotes(file *os.File) {
+	scan := bufio.NewScanner(file)
+
+	start := time.Now()
+	//Working on assumption that data is in some Id:vote key value fashion (even inherently as in, phonenumber + vote)
+	//and that it is tab separated and 1 vote per line
+	for scan.Scan() {
+		row := strings.Split(scan.Text(), "\t")
+
+		//just continuing may not be the best approach, but for now
+		if len(row) != 2 {
+			continue
+		}
+
+		//TODO first try and retrieve the voter, if theyre not there, we'll insert them with their vote
+		//if they are there we will check their votes and if they have < 3 votes, we will add the vote, else skip
+	}
+	
+	elapsed := time.Since(start)
+	fmt.Println("Processing took ", elapsed)
 }
