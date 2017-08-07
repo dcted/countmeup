@@ -17,6 +17,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	//"sync"
 )
 
 type Votes struct {
@@ -26,9 +27,11 @@ type Votes struct {
 
 //The main data set read in from file
 var voters = make(map[string]Votes)
+//var votersLock = &sync.Mutex{}
 
 //stores tally of votes for candidates as votes are counted
 var candidateTotals = make(map[uint8]int)
+//var candidateTotalsLock = &sync.Mutex{}
 var totalVotes = 0
 
 func main() {
@@ -66,6 +69,7 @@ func parseVotes(file *os.File) {
 
 		//first try and retrieve the voter, if theyre not there, we'll insert them with their vote
 		//if they are there we will check their votes and if they have < 3 votes, we will add the vote, else skip
+		//go insertVote(row[0], row[1])
 		insertVote(row[0], row[1])
 	}
 	elapsed := time.Since(start)
@@ -74,22 +78,7 @@ func parseVotes(file *os.File) {
 	tallyVotes()
 }
 
-//Function to add to a voters slice of votes if the can validly (have voted less than 3 times)
-//else the vote will not be counted
-func (v *Votes) addToVotes(vote uint8) *Votes {
-	if len(v.votes) < 3 {
-		candidateTotals[vote] = candidateTotals[vote] + 1
-		totalVotes++
-
-		v.votes = append(v.votes, vote)
-		return v
-	} else {
-		return v
-	}
-}
-
 func insertVote(voter string, vote string) {
-	votes, _ := voters[voter] 
 	voteForCandidate, err := strconv.ParseInt(vote, 0, 8)
 
 	if err != nil {
@@ -97,7 +86,21 @@ func insertVote(voter string, vote string) {
 	}
 
 	//If we have record of the voter, attempt add, otherwise just add
-	voters[voter] = *votes.addToVotes(uint8(voteForCandidate))
+	//votersLock.Lock()
+	votes, exists := voters[voter] 
+	if len(votes.votes) < 3 {
+		if exists {
+			votes.votes = append(votes.votes, uint8(voteForCandidate))
+		} 
+		
+		voters[voter] = votes
+	}
+	//votersLock.Unlock()
+
+	//candidateTotalsLock.Lock()
+	candidateTotals[uint8(voteForCandidate)] = candidateTotals[uint8(voteForCandidate)] + 1
+	totalVotes++
+	//candidateTotalsLock.Unlock()
 }
 
 func tallyVotes() {
