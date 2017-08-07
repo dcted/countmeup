@@ -104,7 +104,7 @@ func tallyVotes() {
 	fmt.Println("candidate\ttotal")
 
 	for key,val := range candidateTotals {
-		perc := float64(val) / float64(totalVotes)
-		fmt.Println(fmt.Sprintf("candidate %d %c %d ( %f )", key, '\t', val, perc))
+		perc := (float64(val) / float64(totalVotes)) * 100
+		fmt.Println(fmt.Sprintf("candidate %d %c %d ( %.2f%c )", key, '\t', val, perc, '%'))
 	}
 }
