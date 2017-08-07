@@ -9,4 +9,4 @@ in the format <VOTER_ID>\t<CANDIDATE_ID>\n for each line.
 A file is included as votecreator.go in the folder votecreator to easily
 create a txt file of votes for Count Me Up.
 
-A test file is included as votecreator_test.go which can be run as a normal go test.
+A test file is included as countmeup_test.go which can be run as a normal go test.
